@@ -1,51 +1,30 @@
 import unittest
-from unittest.mock import patch, MagicMock
-import pandas as pd
-import datetime
+from streamlit import translate_text_with_google, convert_text_to_speech, ...
 
-# Assuming the main code is saved in streamlit_app.py
-from streamlit import get_hourly_quote, display_quote, custom_sidebar
+class TestFluentranslator(unittest.TestCase):
+    def test_translate_text_with_google(self):
+        # Arrange
+        text = "Hello, world!"
+        target_language = "fr"
 
-# Mock data for testing
-mock_quotes_df = pd.DataFrame({
-    'Quote': ["Quote 1", "Quote 2", "Quote 3"],
-    'Character': ["Character 1", "Character 2", "Character 3"]
-})
+        # Act
+        translated_text = translate_text_with_google(text, target_language)
 
-class TestFluentTranslatorApp(unittest.TestCase):
+        # Assert
+        self.assertIsNotNone(translated_text)
+        self.assertNotEqual(translated_text, text)
 
-    @patch('streamlit_app.quotes_df', mock_quotes_df)
-    @patch('datetime.datetime')
-    def test_get_hourly_quote(self, mock_datetime):
-        # Mock the current hour to 1 for consistent results
-        mock_datetime.now.return_value = datetime.datetime(2023, 10, 1, 1, 0, 0)
-        
-        # Test the quote retrieval based on the mocked hour
-        quote, author, quote_index = get_hourly_quote()
-        self.assertEqual(quote, "Quote 2")
-        self.assertEqual(author, "Character 2")
-        self.assertEqual(quote_index, 1)
+    def test_convert_text_to_speech(self):
+        # Arrange
+        text = "This is a test"
+        output_file = "test.mp3"
 
-    @patch('streamlit.sidebar.markdown')
-    @patch('streamlit_app.get_hourly_quote')
-    def test_display_quote(self, mock_get_hourly_quote, mock_sidebar_markdown):
-        # Mock the get_hourly_quote function
-        mock_get_hourly_quote.return_value = ("Test Quote", "Test Character", 1)
-        
-        # Call the display_quote function
-        display_quote()
-        
-        # Check if sidebar markdown was called
-        self.assertTrue(mock_sidebar_markdown.called)
+        # Act
+        convert_text_to_speech(text, output_file)
 
-    @patch('streamlit.sidebar.radio')
-    def test_custom_sidebar(self, mock_radio):
-        # Mock the sidebar radio to select "Text Translation"
-        mock_radio.return_value = "Text Translation"
-        
-        # Call custom_sidebar and check the selected option
-        choice = custom_sidebar()
-        self.assertEqual(choice, "Text Translation")
+        # Assert
+        # You might need to check if the file exists and has the correct format
+        # or analyze the audio content. This can be more complex.
+        self.assertTrue(os.path.exists(output_file))
 
-if __name__ == "__main__":
-    unittest.main()
+    # ... other test cases for other functions
