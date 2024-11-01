@@ -21,4 +21,4 @@ nltk
 spacy
 reportlab
 fpdf
-fluent
+fluent.runtime
