@@ -1,97 +1,59 @@
-import streamlit as st
+import unittest
 from fluent.runtime import FluentBundle, FluentResource
 
-# Set up the Streamlit page title
-st.title("Fluent Translator System Testing Interface")
-st.write("An interactive interface to run system tests on the Fluent Translator")
+# Define helper functions to test the core Fluent functionality
+def create_bundle(locale):
+    return FluentBundle([locale])
 
-# Step 1: Initialize Fluent Bundle with Locale
-st.subheader("1. Initialize Fluent Bundle")
-locale = st.text_input("Enter locale (e.g., en-US):", "en-US")
-bundle = FluentBundle([locale])
+def load_translation(bundle, translation_text):
+    resource = FluentResource(translation_text)
+    bundle.add_resource(resource)
 
-# Step 2: Load Translation Text
-st.subheader("2. Load Translation Text")
-translation_text = st.text_area(
-    "Enter translation text in Fluent format (e.g., 'hello = Hello, { $name }!'):",
-    "hello = Hello, { $name }!\nbye = Goodbye, { $name }!"
-)
-
-if st.button("Load Translation"):
-    try:
-        resource = FluentResource(translation_text)
-        bundle.add_resource(resource)
-        st.success("Translation loaded successfully!")
-    except Exception as e:
-        st.error(f"Failed to load translation: {e}")
-
-# Helper function to format and retrieve translation output
 def format_output(bundle, message_id, variables):
-    if message_id in bundle:
-        message = bundle.get_message(message_id)
-        if message.value:
-            return bundle.format_pattern(message.value, variables)
-        else:
-            return "Message value is empty."
+    message = bundle.get_message(message_id)
+    if message and message.value:
+        return bundle.format_pattern(message.value, variables)
     else:
         return "Message not found."
 
-# Step 3: Define and Run Test Cases
-st.subheader("3. Define and Run Test Cases")
+# Unit test cases for FluentTranslator functionalities
+class TestFluentTranslator(unittest.TestCase):
 
-# Test Case 1: Translation with a variable
-st.write("**Test Case 1**: Translation with a variable")
-name = st.text_input("Enter name for Test Case 1:", "Alice")
-test_variables_1 = {"name": name}
-message_id_1 = "hello"
+    def setUp(self):
+        # Set up a default locale and bundle for testing
+        self.bundle = create_bundle("en-US")
+        translation_text = "hello = Hello, { $name }!\nbye = Goodbye, { $name }!"
+        load_translation(self.bundle, translation_text)
 
-if st.button("Run Test Case 1"):
-    output_1 = format_output(bundle, message_id_1, test_variables_1)
-    st.write("Expected Output: Hello, Alice!")
-    st.write(f"Actual Output: {output_1}")
-    if output_1 == f"Hello, {name}!":
-        st.success("Test Case 1 Passed")
-    else:
-        st.error("Test Case 1 Failed")
+    def test_translation_with_variable(self):
+        # Test translation with variable
+        variables = {"name": "Alice"}
+        result = format_output(self.bundle, "hello", variables)
+        self.assertEqual(result, "Hello, Alice!")
 
-# Test Case 2: Translation without variable
-st.write("**Test Case 2**: Translation with a missing variable")
-message_id_2 = "hello"
+    def test_translation_missing_variable(self):
+        # Test handling of missing variable (should output partial or placeholder)
+        variables = {}
+        result = format_output(self.bundle, "hello", variables)
+        self.assertIn("Hello,", result)
 
-if st.button("Run Test Case 2"):
-    output_2 = format_output(bundle, message_id_2, {})
-    st.write("Expected Output: (Should handle missing variable gracefully)")
-    st.write(f"Actual Output: {output_2}")
-    if "Hello," in output_2:
-        st.success("Test Case 2 Passed")
-    else:
-        st.error("Test Case 2 Failed")
+    def test_invalid_message_id(self):
+        # Test with an invalid message ID
+        variables = {"name": "Alice"}
+        result = format_output(self.bundle, "invalid_id", variables)
+        self.assertEqual(result, "Message not found.")
 
-# Test Case 3: Invalid message ID
-st.write("**Test Case 3**: Request translation with an invalid message ID")
-message_id_3 = "invalid_id"
+    def test_translation_extra_variable(self):
+        # Test with extra, unused variable
+        variables = {"name": "Alice", "extra": "extra_value"}
+        result = format_output(self.bundle, "hello", variables)
+        self.assertEqual(result, "Hello, Alice!")
 
-if st.button("Run Test Case 3"):
-    output_3 = format_output(bundle, message_id_3, test_variables_1)
-    st.write("Expected Output: Message not found.")
-    st.write(f"Actual Output: {output_3}")
-    if output_3 == "Message not found.":
-        st.success("Test Case 3 Passed")
-    else:
-        st.error("Test Case 3 Failed")
+    def test_load_invalid_translation(self):
+        # Test loading an invalid translation
+        with self.assertRaises(Exception):
+            invalid_translation = "invalid = Hello {"
+            load_translation(self.bundle, invalid_translation)
 
-# Test Case 4: Translation with extra variable
-st.write("**Test Case 4**: Translation with an extra, unused variable")
-test_variables_4 = {"name": name, "extra": "extra_value"}
-message_id_4 = "hello"
-
-if st.button("Run Test Case 4"):
-    output_4 = format_output(bundle, message_id_4, test_variables_4)
-    st.write("Expected Output: Hello, Alice!")
-    st.write(f"Actual Output: {output_4}")
-    if output_4 == f"Hello, {name}!":
-        st.success("Test Case 4 Passed")
-    else:
-        st.error("Test Case 4 Failed")
-
-st.write("System testing for Fluent Translator completed. Modify inputs above to test additional cases.")
+if __name__ == "__main__":
+    unittest.main()
