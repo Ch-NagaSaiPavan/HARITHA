@@ -16,8 +16,9 @@ PyPDF2
 langdetect
 SpeechRecognition
 pydub
-transformers==4.28.0
+transformers
 nltk
 spacy
 reportlab
 fpdf
+fluent.runtime
