@@ -4,7 +4,7 @@ import pandas as pd
 import datetime
 
 # Assuming the main code is saved in streamlit_app.py
-from streamlit_app import get_hourly_quote, display_quote, custom_sidebar
+from streamlit import get_hourly_quote, display_quote, custom_sidebar
 
 # Mock data for testing
 mock_quotes_df = pd.DataFrame({
