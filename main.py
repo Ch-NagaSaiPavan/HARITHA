@@ -1,6 +1,7 @@
 import streamlit as st
 import page1 
 import page2
+import page3
 import page4
 import datetime
 import pandas as pd
@@ -72,5 +73,7 @@ if page_choice == "Document and Pdf Translation":
     page1.main()
 elif page_choice == "Text Translation":
     page2.main()
+elif page_choice == "Summarization":
+    page3.main()
 elif page_choice == "About the App":
     page4.main()
