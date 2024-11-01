@@ -1,5 +1,5 @@
 import streamlit as st
-import page1
+import page1 
 import page2
 import page4
 import datetime
