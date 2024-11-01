@@ -1,7 +1,7 @@
 import streamlit as st
-import Page1
-import Page2
-import Page4
+import page1
+import page2
+import page4
 import datetime
 import pandas as pd
 from PIL import Image
@@ -69,8 +69,8 @@ display_quote()
 
 # Depending on the selected choice, call the respective main function
 if page_choice == "Document and Pdf Translation":
-    Page1.main()
+    page1.main()
 elif page_choice == "Text Translation":
-    Page2.main()
+    page2.main()
 elif page_choice == "About the App":
-    Page4.main()
+    page4.main()
